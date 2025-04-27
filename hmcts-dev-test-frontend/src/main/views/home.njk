@@ -1,0 +1,91 @@
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% extends "template.njk" %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">Welcome to your dev test!</h1>
+
+  {% if tasks.length %}
+
+    {% for task in tasks %}
+      <h2 class="govuk-heading-m">Task {{ task.id }}</h2>
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "ID" },
+            value: { text: task.id }
+          },
+          {
+            key: { text: "Title" },
+            value: { html: task.title }
+          },
+          {
+            key: { text: "Description" },
+            value: { html: task.description or 'No description' }
+          },
+          {
+            key: { text: "Status" },
+            value: { html: task.status }
+          },
+          {
+            key: { text: "Due Date" },
+            value: { html: task.dueDate or 'No due date' },
+            actions: { items: [] }
+          }
+        ]
+      }) }}
+      <form method="POST" action="/delete-task/{{ task.id }}">
+  <button class="govuk-button govuk-button--warning" type="submit">Delete Task</button>
+</form>
+
+      <form method="POST" action="/update-status/{{ task.id }}">
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="status-{{ task.id }}">Change Status</label>
+    <select class="govuk-select" id="status-{{ task.id }}" name="status" required>
+      <option value="Pending" {% if task.status == 'Pending' %}selected{% endif %}>Pending</option>
+      <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+      <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
+    </select>
+  </div>
+  <button class="govuk-button" type="submit">Update Status</button>
+</form>
+
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+    {% endfor %}
+
+  {% else %}
+    <p>No tasks available.</p>
+  {% endif %}
+
+  <h2 class="govuk-heading-l">Create a New Task</h2>
+
+  <form class="govuk-form-group" method="POST" action="/create-task">
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="title">Title</label>
+      <input class="govuk-input" id="title" name="title" type="text" required>
+    </div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="description">Description (optional)</label>
+      <textarea class="govuk-textarea" id="description" name="description"></textarea>
+    </div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="status">Status</label>
+      <select class="govuk-select" id="status" name="status" required>
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="dueDate">Due Date and Time</label>
+      <input class="govuk-input" id="dueDate" name="dueDate" type="datetime-local" required>
+    </div>
+
+    <button class="govuk-button" type="submit">Create Task</button>
+  </form>
+
+{% endblock %}
